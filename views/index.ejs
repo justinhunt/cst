@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+	<link rel="apple-touch-icon" href="img/icon.png" />
+
+	<title>CST</title>
+	<link rel="stylesheet" href="/static/css/layout.css<%=cacheKey%>" type="text/css" media="screen" charset="utf-8">
+	<link rel="stylesheet" href="/static/css/jplayer.css<%=cacheKey%>" type="text/css" />
+	<link rel="stylesheet" href="/static/css/taskTypes.css<%=cacheKey%>" type="text/css" media="screen" charset="utf-8">
+	<script type="text/javascript" src="/static/js/jquery.js"></script>
+	<script type="text/javascript" src="/static/js/socket.io.js"></script>
+	<script type="text/javascript" src="/static/js/purl.js"></script>
+	<script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+	<script type="text/javascript" src="/static/js/jplayer-2.1.0.js"></script>
+	<script type="text/javascript" src="/static/js/cst.js<%=cacheKey%>"></script>
+	<script type="text/javascript" src="/static/js/cst.config.js<%=cacheKey%>"></script>
+	<script type="text/javascript" src="/static/js/cst.state.js<%=cacheKey%>"></script>
+	<script type="text/javascript" src="/static/js/cst.ui.js<%=cacheKey%>"></script>
+	<script type="text/javascript" src="/static/js/cst.test.js<%=cacheKey%>"></script>
+	<script type="text/javascript" src="/static/js/cst.response.js<%=cacheKey%>"></script>
+	<script type="text/javascript" src="/static/js/cst.timer.js<%=cacheKey%>"></script>
+	<script type="text/javascript" src="/static/js/cst.event.js<%=cacheKey%>"></script>
+	<script type="text/javascript" src="/static/js/cst.tasks.js<%=cacheKey%>"></script>
+</head>
+<body>
+	<div id="main">
+		<div id="setup" class="form" style="display: none;">
+			<form action="/" method="GET">
+				<div class="prompt">
+					<label for="channel">Channel:</label><input type="text" name="channel" value="" id="channel">
+				</div>
+				<div class="prompt">
+					<label><input type="radio" name="seat" value="student" id="seatStudent">Student</label>
+					<label><input type="radio" name="seat" value="teacher" id="seatTeacher">Teacher</label>
+				</div>
+				<div class="prompt pwide">
+					<label>
+						<input type="checkbox" name="tasks" value="jp01"/> Japanese Audio
+					</label>
+				</div>
+				<button type="submit">Go</button>
+			</form>
+		</div>
+		<div id="init" class="form" style="display: none;">
+			<div class="prompt">
+				<label for="session_id">Session Id:</label><input type="text" name="session_id" value="1" id="sessionId">
+			</div>
+			<div class="prompt">
+				<label for="rater_id">Rater Id:</label><input type="text" name="rater_id" value="" id="raterId">
+			</div>
+			<div class="prompt">
+				<label for="student_id">Examinee Id:</label><input type="text" name="student_id" value="" id="studentId">
+			</div>
+			<div>
+				<a id="initButton" href="javascript:;">Start</a>
+			</div>
+		</div>
+		<a id="restart" href="javascript:;" style="display: none;">Re-Start Question</a>
+		<a id="cancel" href="javascript:;" style="display: none;">Cancel</a>
+		<a id="quit" href="javascript:;" style="display: none;">Quit</a>
+		<a id="timer" style="display: none;"></a> 
+		<div id="users">Loading...</div> 
+		<div id="instructions" style="display: none;"></div>
+		<div id="working" style="display: none;">Something's up<span id="dot3"></span></div>
+		<div id="question" style="display: none;"></div>
+		<div id="go" style="display: none;">
+			<a id="goButton" href="javascript:;">Go</a>
+		</div>
+		<div id="answers" style="display: none;"></div>
+		<div id="error" style="display: none;"></div>
+		<div id="thanks" style="display: none;">
+			<h1>Thank you for taking our test.</h1>
+			<p id="sending" class="status">Sending Your Results...</p>
+			<p id="sendSuccess" class="status">Results Sent!</p>
+			<pre id="successDetail" class="status"></pre>
+			<p id="sendFail" class="status">Error Sending Your Results... : (</p>
+			<pre id="failDetail" class="status"></pre>
+			<a id="reset" href="javascript:;">Start the Next Session</a>
+			<pre id="diagnostic"></pre>
+		</div>
+		<div id="jpUITemplate" style="display: none;">
+			<div id="jquery_jplayer_1" class="jp-jplayer"></div>
+	        <div id="jp_container_1" class="jp-audio">
+	            <div class="jp-type-single">
+	                <div class="jp-gui jp-interface">
+	                    <ul class="jp-controls">
+	                        <li><a href="javascript:;" class="jp-play" tabindex="1">play</a></li>
+	                        <li><a href="javascript:;" class="jp-pause" tabindex="1">pause</a></li>
+	                    </ul>
+	                    <div class="jp-progress">
+	                        <div class="jp-seek-bar">
+	                            <div class="jp-play-bar"></div>
+	                        </div>
+	                    </div>
+	                    <div class="jp-current-time"></div>
+	                    <div class="jp-duration"></div>
+	                </div>
+	            </div>
+	        </div>
+		</div>
+		<div id="consent" style="display: none;"></div>
+		<div id="generalInstructions" style="display: none;"></div>
+	</div>
+
+<script type="text/javascript" charset="utf-8">
+	$(cst.init);
+</script>
+
+</body>
+</html>
