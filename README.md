@@ -26,3 +26,7 @@ http://localhost:8082
 Fire up 2 tabs pointing to that page, select the 'teacher' radio button on one, and 'student' radio button on the other, and enter the same "channel" text.
 
 You should then be able to take a test by bouncing between those two tabs.
+
+---
+
+This work was supported by JSPS KAKENHI Grant Number 24652131
