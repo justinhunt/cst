@@ -3,14 +3,14 @@ cst.config = (function($){
 		tt = {},
 		s = {},
 		options = {},
+		testProperties = {},
 		ttn = '',
 		sessions = [],
 		loadFlags = {		//used to set up a bunch of latches that hold some operations until a series of asynchronous actions are complete
 			config: false,
 			sessions: false,
-			test: false,
-			consent: false,
-			instructions: false
+			testProperties: false,
+			tasks: false
 		};
 	
 	var init = function(fCallback){
@@ -28,7 +28,12 @@ cst.config = (function($){
 				}
 				if (typeof d.options !== 'undefined'){
 					options = d.options;
+					loadMoodleData(fCallback);
 				}
+				//load test properties
+				var fetchprops = {type: 'testproperties', id:  cst.url().activityid, sesskey:  cst.url().sesskey};
+				cst.state.fetchMoodleData(fetchprops);
+				
 				ttn = $.map(tt, function(val, i){
 					return i
 				}).join(" ");
@@ -40,12 +45,31 @@ cst.config = (function($){
 				throw errorThrown;
 			}
 		});
+	};
+
+	
+	var getMoodleUrl = function(wantedData){
 		
-		//SESSION INIT
+		var moodleurl = $('#moodleurl').attr('value');//could use cst.url().moodleurl in manual partner select (cos was passed in by form)
+		var targetfile ='';
+		var type ='ignore';
+		switch(wantedData){
+			case 'sessions': targetfile='jsonsessions.php';break;
+			case 'tasks': targetfile='jsontasks.php';break;
+			case 'testproperties': targetfile='jsonmoodledata.php';type='testproperties'; break;
+		}
+		
+		return  moodleurl + '/mod/moodlecst/' + targetfile + '?id='  + cst.url().activityid + '&sesskey=' + cst.url().sesskey + '&type=' + type;
+	};
+
+	//this needs to be called after options are loaded, to get the moodle url
+	var loadMoodleData = function(fCallback){
+		var sessionPath = getMoodleUrl('sessions');
 		$.ajax({
-			url: '/config/sessions.js?t=' + (new Date()).getTime(),
+			url: sessionPath + '&t=' + (new Date()).getTime(),
 			dataType: 'json',
-			success: function(d){ 
+			success: function(d){
+				console.log('loadedsession');
 				if (typeof d !== 'undefined'){
 					sessions = d;
 					loadFlags.sessions = true;
@@ -58,18 +82,19 @@ cst.config = (function($){
 		});
 
 		//TASK INIT
+		var taskPath = getMoodleUrl('tasks');
 		$.ajax({
-			url: taskPath() + (new Date()).getTime(),
+			url: taskPath + '&t=' + (new Date()).getTime(),
 			dataType: 'json',
 			success: function(d){
-
+				console.log('loadedtasks');
 				if (d.test){
 					cst.test.data(d.test);
 				}else{
 					throw "No test payload received";
 				}
 				
-				loadFlags.test = true;
+				loadFlags.tasks = true;
 				isConfigFinished(fCallback);
 			},
 			error: function(jqXHR, textStatus, errorThrown){
@@ -77,61 +102,25 @@ cst.config = (function($){
 			}
 		});
 		
-		//CONSENT CONTENT INIT
+		//Test Props
+		var propsPath = getMoodleUrl('testproperties');
 		$.ajax({
-			url: '/content/consent.htm',
-			dataType: 'html',
+			url: propsPath + '&t=' + (new Date()).getTime(),
+			dataType: 'json',
 			success: function(d){
-				if (d){
-					//TODO: MOVE THIS TO UI
-					$('#consent').html(d);
-				}else{
-					throw "No consent content received";
+				console.log('loaded test properties');
+				if (typeof d !== 'undefined'){
+					testProperties = d;
+					loadFlags.testProperties = true;
+					isConfigFinished(fCallback);
 				}
-				
-				loadFlags.consent = true;
-				isConfigFinished(fCallback);
 			},
 			error: function(jqXHR, textStatus, errorThrown){
 				throw errorThrown;
 			}
 		});
-		
-		//INSTRUCTIONS CONTENT INIT
-		$.ajax({
-			url: '/content/instructions.htm',
-			dataType: 'html',
-			success: function(d){
-				if (d){
-					//TODO: MOVE THIS TO UI
-					$('#generalInstructions').html(d);
-				}else{
-					throw "No instructions content received";
-				}
-				
-				loadFlags.instructions = true;
-				isConfigFinished(fCallback);
-			},
-			error: function(jqXHR, textStatus, errorThrown){
-				throw errorThrown;
-			}
-		});
-		
-		
-		
-		
 	};
 	
-	var taskPath = function(){
-		var file = 'default';
-		
-		if (typeof cst.url().tasks !== 'undefined'){
-			file = cst.url().tasks;
-		}
-		
-		return '/config/tasks/' + file + '.js?t=';
-	};
-
 	//Harnesses all the ajax actions to not fire a 'finished' callback until they've all called back.
 	var isConfigFinished = function(fCallback){
 		var b = true;
@@ -150,6 +139,8 @@ cst.config = (function($){
 	};
 
 	var sessions = function(){ return sessions; };
+	
+	var testProperties = function(){ return testProperties; };
 
 	var taskTypes = function(){ return tt; };
 	
@@ -165,6 +156,7 @@ cst.config = (function($){
 		seats: seats,
 		taskTypeNames: taskTypeNames,
 		otherSeat: otherSeat,
+		testProperties: testProperties,
 		sessions: sessions,
 		options: options
 	};

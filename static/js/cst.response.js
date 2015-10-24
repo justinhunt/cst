@@ -7,16 +7,16 @@ cst.response = (function ($) {
 		var td = cst.state.data();
 		
 		return {
-			studentId: td.studentId,
-			raterId: td.raterId,
-			taskId: td.taskId,
-			elapsedMillis: td.taskEnd - td.taskStart,
-			answerId: answerId,
-			sessionId: td.sessionId,
+			userid: td.studentId,
+			partnerid: td.raterId,
+			slidepairid: td.taskId,
+			duration: td.taskEnd - td.taskStart,
+			answerid: answerId,
+			sessionid: td.sessionId,
 			latency: cst.timer.getLatency() + '/' + td.studentLatency,
 			correct: isCorrect,
-			consentGiven: td.consentGiven,
-			cts: cst.timer.getTime()
+			consent: td.consentGiven,
+			timecreated: cst.timer.getTime()
 		};
 		
 	}

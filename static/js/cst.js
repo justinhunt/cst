@@ -13,8 +13,9 @@ cst = (function ($) {
 	};
 	
 	var init = function(){
-		
-		if (typeof cst.url().seat === 'undefined' || typeof cst.url().channel === 'undefined'){
+		//if (typeof cst.url().seat === 'undefined' || typeof cst.url().channel === 'undefined'){
+		//if we have no channel, and we not setup for auto asign channel
+		if (typeof cst.url().channel === 'undefined' && !(typeof cst.url().partnermode != 'undefined' &&  cst.url().partnermode === 'auto')){
 			$('#setup').show();
 			return;
 		}
@@ -25,15 +26,20 @@ cst = (function ($) {
 		cst.config.init(function(){
 			cst.event.init(function(){
 				//set up state basics.. don't sync it yet.
-				cst.state.data({
+				cst.state.data('localsysteminit',{
 					channel: cst.url().channel,
-					mySeat: cst.url().seat
+					mySeat: cst.url().seat,
+					sesskey: cst.url().sesskey,
+					userId: cst.url().userid,
+					activityId: cst.url().activityid,
+					mode: cst.url().mode,
+					partnermode: cst.url().partnermode
 				}, 1);
 				cst.ui.init();
 				cst.timer.init();
 				
 				//now sync it.
-				cst.state.data({
+				cst.state.data('systeminit',{
 					sharedStat: 'systemInit'
 				});
 			});
@@ -53,7 +59,7 @@ cst = (function ($) {
 	
 	//Runs only on the teacher side. Events and data should all propagate over state sync.
 	var initHandler = function(e){
-		e.preventDefault();
+		if(e){e.preventDefault()};
 		var 
 			$studentId = $('#studentId'),
 			$raterId = $('#raterId'),
@@ -70,15 +76,7 @@ cst = (function ($) {
 				alert("That session could not be found.  Please try another");
 				return;
 			}
-			if ($studentId.val() == ''){
-				alert('Please Specify an Examinee Id');
-				return;
-			}
-			if ($raterId.val() == ''){
-				alert('Please specify a Rater Id');
-				return;
-			}
-			
+		
 			
 			if (thisSession.length > 0){
 				stateOut.sessionId = $sessionId.val().toLowerCase();
@@ -87,9 +85,17 @@ cst = (function ($) {
 				//If either user cancelled out and we're initing again, we should clear the previous answers.
 				cst.state.clearOutput();
 				cst.test.session(thisSession);
-				
-				stateOut.studentId = $studentId.val();
-				stateOut.raterId = $raterId.val();
+				switch(cst.state.data().mySeat){
+					case 'teacher':
+						stateOut.studentId = cst.state.data().partnerId;
+						stateOut.raterId = cst.state.data().userId;
+						break;
+					case 'student':
+					default:
+						stateOut.raterId = cst.state.data().partnerId;
+						stateOut.studentId = cst.state.data().userId;
+						break;
+				}
 				$.cookie('cstRaterId', stateOut.raterId, { expires: 365 });
 
 				stateOut.sharedStat = 'taskStart';
